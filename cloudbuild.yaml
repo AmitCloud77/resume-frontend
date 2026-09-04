@@ -1,0 +1,36 @@
+# Cloud Build pipeline for the frontend repo.
+# Trigger this on push to `main` (set up in Cloud Build console/gcloud —
+# see DEPLOYMENT_GUIDE.md, Phase 9).
+#
+# Substitutions used below (set as trigger substitution variables):
+#   _BUCKET_NAME     e.g. my-c00l-resume-website
+#   _URL_MAP_NAME    e.g. resume-lb  (only needed once you have a load balancer + CDN)
+
+steps:
+  # 1. Sync the static site to the bucket
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gsutil
+    args:
+      - "-m"
+      - "rsync"
+      - "-r"
+      - "-d"
+      - "."
+      - "gs://${_BUCKET_NAME}"
+
+  # 2. Invalidate the Cloud CDN cache so visitors see the new version
+  #    immediately instead of waiting for the old cache to expire.
+  #    Skip/remove this step until you've set up the load balancer + CDN
+  #    (Phase 7 of the guide).
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - compute
+      - url-maps
+      - invalidate-cdn-cache
+      - "${_URL_MAP_NAME}"
+      - "--path=/*"
+      - "--async"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
