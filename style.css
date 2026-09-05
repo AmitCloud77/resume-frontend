@@ -150,6 +150,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--teal); outline-
   white-space: nowrap;
 }
 
+.entry-sub {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
 .entry ul {
   margin: 0;
   padding-left: 1.1rem;
